@@ -14,35 +14,35 @@ export const ParadoxEngine: React.FC = () => {
         { id: 'statement', value: true, label: "Esta afirmación" }
     ]);
 
-    // Simplified state: just toggle the Truth Value
     useEffect(() => {
-        let intervalId: ReturnType<typeof setInterval>;
+        let timeoutId: ReturnType<typeof setTimeout>;
+
+        const loop = () => {
+            if (!isRunning) return;
+
+            setNodes(prev => {
+                if (!prev || prev.length === 0) return prev;
+                // Create new array with toggled value
+                return [{ ...prev[0], value: !prev[0].value }];
+            });
+
+            setStepCount(prev => prev + 1);
+
+            // Schedule next tick
+            timeoutId = setTimeout(loop, 1000); // 1 second delay
+        };
 
         if (isRunning) {
-            intervalId = setInterval(() => {
-                try {
-                    setNodes(prev => {
-                        if (!prev || prev.length === 0) return prev;
-                        return [{
-                            ...prev[0],
-                            value: !prev[0].value
-                        }];
-                    });
-                    setStepCount(c => c + 1);
-                } catch (e) {
-                    console.error("Paradox Loop Error:", e);
-                    setIsRunning(false); // Stop loop on error
-                }
-            }, 1000); // Slower interval for stability
+            loop();
         }
 
         return () => {
-            if (intervalId) clearInterval(intervalId);
+            clearTimeout(timeoutId);
         };
     }, [isRunning]);
 
     const handleToggle = () => {
-        setIsRunning(!isRunning);
+        setIsRunning(prev => !prev);
     };
 
     const handleReset = () => {
@@ -51,7 +51,7 @@ export const ParadoxEngine: React.FC = () => {
         setNodes([{ id: 'statement', value: true, label: "Esta afirmación" }]);
     };
 
-    const currentValue = nodes[0].value;
+    const currentValue = nodes[0]?.value ?? true; // Safety check
 
     return (
         <div className="bg-slate-900 border border-slate-700 rounded-2xl p-8 max-w-2xl mx-auto shadow-2xl relative overflow-hidden">
@@ -61,7 +61,7 @@ export const ParadoxEngine: React.FC = () => {
             <div className="relative z-10 flex flex-col items-center gap-8">
                 <div className="flex items-center gap-4 mb-4">
                     <div className="p-3 bg-yellow-500/20 rounded-full border border-yellow-500/50">
-                        <RefreshCw className={`text-yellow-500 ${isRunning ? 'animate-spin' : ''}`} size={32} />
+                        <RefreshCw className="text-yellow-500" size={32} />
                     </div>
                     <h2 className="text-2xl font-bold text-white tracking-widest uppercase">Motor de Paradojas</h2>
                 </div>
@@ -84,9 +84,7 @@ export const ParadoxEngine: React.FC = () => {
                     {/* The Arrow / Loop */}
                     <div className="h-16 w-1 bg-slate-700 my-2 relative">
                         {isRunning && (
-                            <div
-                                className="w-3 h-3 bg-yellow-400 rounded-full absolute -left-1 opacity-75"
-                            />
+                            <div className="w-3 h-3 bg-yellow-400 rounded-full absolute -left-1" />
                         )}
                     </div>
 
