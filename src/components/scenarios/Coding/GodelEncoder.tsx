@@ -49,7 +49,7 @@ export const GodelEncoder: React.FC = () => {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto p-6 bg-slate-900 rounded-xl border border-slate-700 shadow-2xl">
+        <div className="w-full max-w-4xl mx-auto p-6 bg-slate-900 rounded-xl border border-slate-700 shadow-2xl pb-24">
             {/* Header */}
             <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-emerald-400 mb-2 font-mono">Codificador Gödel</h2>

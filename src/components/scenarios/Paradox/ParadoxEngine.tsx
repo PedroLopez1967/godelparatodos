@@ -81,24 +81,18 @@ export const ParadoxEngine: React.FC = () => {
 
                 {/* The Statement Visual */}
                 <div className="flex flex-col items-center">
-                    <motion.div
-                        key={currentValue ? 'true' : 'false'} // Force re-mount on value change to avoid DOM diffing errors
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{
-                            scale: 1,
-                            opacity: 1,
-                            borderColor: currentValue ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'
-                        }}
+                    <div
                         className={`
-                            w-64 h-32 flex items-center justify-center rounded-xl border-4 text-2xl font-bold
+                            w-64 h-32 flex items-center justify-center rounded-xl border-4 text-2xl font-bold transition-all duration-500 transform
+                            ${isRunning ? 'scale-105' : 'scale-100'}
                             ${currentValue
-                                ? 'bg-green-900/30 text-green-400 shadow-[0_0_30px_rgba(34,197,94,0.3)]'
-                                : 'bg-red-900/30 text-red-400 shadow-[0_0_30px_rgba(239,68,68,0.3)]'
+                                ? 'bg-green-900/30 text-green-400 border-green-500 shadow-[0_0_30px_rgba(34,197,94,0.3)]'
+                                : 'bg-red-900/30 text-red-400 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.3)]'
                             }
                         `}
                     >
                         {currentValue ? "VERDADERO" : "FALSO"}
-                    </motion.div>
+                    </div>
 
                     {/* The Arrow / Loop */}
                     <div className="h-16 w-1 bg-slate-700 my-2 relative">
