@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { RefreshCw, Play, Pause, AlertTriangle } from 'lucide-react';
 
@@ -34,29 +34,28 @@ export const ParadoxEngine: React.FC = () => {
         description: "es FALSA"
     };
 
-    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
 
     useEffect(() => {
+        let intervalId: ReturnType<typeof setInterval>;
+
         if (isRunning) {
-            intervalRef.current = setInterval(() => {
+            intervalId = setInterval(() => {
                 setNodes(prevNodes => {
                     const nodeMap = new Map(prevNodes.map(n => [n.id, n.value]));
-
-                    // Apply rule
                     const newValue = rule.evaluate(nodeMap);
 
+                    // Create a NEW array reference but keep IDs stable
                     return prevNodes.map(n =>
                         n.id === rule.targetId ? { ...n, value: newValue } : n
                     );
                 });
                 setStepCount(c => c + 1);
-            }, 800); // Speed of oscillation
-        } else {
-            if (intervalRef.current) clearInterval(intervalRef.current);
+            }, 800);
         }
 
         return () => {
-            if (intervalRef.current) clearInterval(intervalRef.current);
+            if (intervalId) clearInterval(intervalId);
         };
     }, [isRunning]);
 
@@ -88,11 +87,13 @@ export const ParadoxEngine: React.FC = () => {
                 {/* The Statement Visual */}
                 <div className="flex flex-col items-center">
                     <motion.div
+                        key={currentValue ? 'true' : 'false'} // Force re-mount on value change to avoid DOM diffing errors
+                        initial={{ scale: 0.8, opacity: 0 }}
                         animate={{
-                            scale: isRunning ? [1, 1.05, 1] : 1,
+                            scale: 1,
+                            opacity: 1,
                             borderColor: currentValue ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'
                         }}
-                        transition={{ duration: 0.8, repeat: isRunning ? Infinity : 0 }}
                         className={`
                             w-64 h-32 flex items-center justify-center rounded-xl border-4 text-2xl font-bold
                             ${currentValue
