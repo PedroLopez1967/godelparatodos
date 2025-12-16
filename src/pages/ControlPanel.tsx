@@ -183,6 +183,32 @@ export const ControlPanel: React.FC = () => {
                                 EJECUTAR
                             </button>
                         </div>
+
+                        <div className="flex items-center justify-between p-4 bg-slate-950 rounded-lg border border-slate-800">
+                            <div>
+                                <div className="text-white font-bold">Reparar Aplicación</div>
+                                <div className="text-slate-500 text-xs">Forzar actualización y borrar caché</div>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    if (confirm('Esto recargará la aplicación para corregir errores. ¿Continuar?')) {
+                                        if ('serviceWorker' in navigator) {
+                                            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                                                for (let registration of registrations) {
+                                                    registration.unregister();
+                                                }
+                                                window.location.reload();
+                                            });
+                                        } else {
+                                            window.location.reload();
+                                        }
+                                    }
+                                }}
+                                className="bg-yellow-900/20 hover:bg-yellow-900/40 text-yellow-500 px-4 py-2 rounded-lg text-sm font-mono border border-yellow-900/30 transition-colors"
+                            >
+                                REPARAR
+                            </button>
+                        </div>
                     </div>
 
                     <div className="bg-slate-950 rounded-lg p-4 font-mono text-xs text-green-500 h-32 overflow-y-auto border border-slate-800 custom-scrollbar">
