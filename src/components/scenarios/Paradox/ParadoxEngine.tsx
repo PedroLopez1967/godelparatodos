@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { RefreshCw, Play, Pause, AlertTriangle } from 'lucide-react';
 
 interface ParadoxNode {
@@ -97,10 +96,9 @@ export const ParadoxEngine: React.FC = () => {
                     {/* The Arrow / Loop */}
                     <div className="h-16 w-1 bg-slate-700 my-2 relative">
                         {isRunning && (
-                            <motion.div
-                                animate={{ y: [0, 64, 0] }}
-                                transition={{ duration: 1.6, repeat: Infinity, ease: "linear" }}
-                                className="w-3 h-3 bg-yellow-400 rounded-full absolute -left-1"
+                            <div
+                                className="w-3 h-3 bg-yellow-400 rounded-full absolute -left-1 animate-ping"
+                                style={{ animationDuration: '1.5s' }}
                             />
                         )}
                     </div>
@@ -150,14 +148,12 @@ export const ParadoxEngine: React.FC = () => {
 
                 {/* Warning */}
                 {stepCount > 5 && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-2 text-yellow-500 bg-yellow-500/10 px-4 py-2 rounded border border-yellow-500/20"
+                    <div
+                        className="flex items-center gap-2 text-yellow-500 bg-yellow-500/10 px-4 py-2 rounded border border-yellow-500/20 animate-pulse"
                     >
                         <AlertTriangle size={16} />
                         <span className="text-sm font-bold">¡ALERTA! Bucle infinito detectado. El sistema no puede decidir.</span>
-                    </motion.div>
+                    </div>
                 )}
             </div>
         </div>
