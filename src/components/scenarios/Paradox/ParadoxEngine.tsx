@@ -1,0 +1,175 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { RefreshCw, Play, Pause, AlertTriangle } from 'lucide-react';
+
+interface ParadoxNode {
+    id: string;
+    value: boolean;
+    label: string;
+}
+
+interface ParadoxRule {
+    targetId: string;
+    // Function that takes current state and returns new value for target
+    evaluate: (nodes: Map<string, boolean>) => boolean;
+    description: string;
+}
+
+export const ParadoxEngine: React.FC = () => {
+    const [isRunning, setIsRunning] = useState(false);
+    const [stepCount, setStepCount] = useState(0);
+    const [nodes, setNodes] = useState<ParadoxNode[]>([
+        { id: 'statement', value: true, label: "Esta afirmación" }
+    ]);
+
+    // The "Liar Paradox" rule: Statement is True if it is False.
+    // If Statement is True -> evaluate to False.
+    // If Statement is False -> evaluate to True.
+    const rule: ParadoxRule = {
+        targetId: 'statement',
+        evaluate: (currentNodes) => {
+            const val = currentNodes.get('statement');
+            return !val;
+        },
+        description: "es FALSA"
+    };
+
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    useEffect(() => {
+        if (isRunning) {
+            intervalRef.current = setInterval(() => {
+                setNodes(prevNodes => {
+                    const nodeMap = new Map(prevNodes.map(n => [n.id, n.value]));
+
+                    // Apply rule
+                    const newValue = rule.evaluate(nodeMap);
+
+                    return prevNodes.map(n =>
+                        n.id === rule.targetId ? { ...n, value: newValue } : n
+                    );
+                });
+                setStepCount(c => c + 1);
+            }, 800); // Speed of oscillation
+        } else {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+        }
+
+        return () => {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+        };
+    }, [isRunning]);
+
+    const handleToggle = () => {
+        setIsRunning(!isRunning);
+    };
+
+    const handleReset = () => {
+        setIsRunning(false);
+        setStepCount(0);
+        setNodes([{ id: 'statement', value: true, label: "Esta afirmación" }]);
+    };
+
+    const currentValue = nodes[0].value;
+
+    return (
+        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-8 max-w-2xl mx-auto shadow-2xl relative overflow-hidden">
+            {/* Background Effects */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent opacity-50"></div>
+
+            <div className="relative z-10 flex flex-col items-center gap-8">
+                <div className="flex items-center gap-4 mb-4">
+                    <div className="p-3 bg-yellow-500/20 rounded-full border border-yellow-500/50">
+                        <RefreshCw className={`text-yellow-500 ${isRunning ? 'animate-spin' : ''}`} size={32} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white tracking-widest uppercase">Motor de Paradojas</h2>
+                </div>
+
+                {/* The Statement Visual */}
+                <div className="flex flex-col items-center">
+                    <motion.div
+                        animate={{
+                            scale: isRunning ? [1, 1.05, 1] : 1,
+                            borderColor: currentValue ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'
+                        }}
+                        transition={{ duration: 0.8, repeat: isRunning ? Infinity : 0 }}
+                        className={`
+                            w-64 h-32 flex items-center justify-center rounded-xl border-4 text-2xl font-bold
+                            ${currentValue
+                                ? 'bg-green-900/30 text-green-400 shadow-[0_0_30px_rgba(34,197,94,0.3)]'
+                                : 'bg-red-900/30 text-red-400 shadow-[0_0_30px_rgba(239,68,68,0.3)]'
+                            }
+                        `}
+                    >
+                        {currentValue ? "VERDADERO" : "FALSO"}
+                    </motion.div>
+
+                    {/* The Arrow / Loop */}
+                    <div className="h-16 w-1 bg-slate-700 my-2 relative">
+                        {isRunning && (
+                            <motion.div
+                                animate={{ y: [0, 64, 0] }}
+                                transition={{ duration: 1.6, repeat: Infinity, ease: "linear" }}
+                                className="w-3 h-3 bg-yellow-400 rounded-full absolute -left-1"
+                            />
+                        )}
+                    </div>
+
+                    <div className="text-slate-400 text-lg font-mono bg-slate-800 px-6 py-3 rounded-lg border border-slate-700">
+                        "{nodes[0].label} <span className="text-yellow-400 font-bold">{rule.description}</span>"
+                    </div>
+                </div>
+
+                {/* Log / Status */}
+                <div className="w-full bg-slate-950 p-4 rounded-lg font-mono text-sm text-green-500 h-24 overflow-hidden relative">
+                    <div className="absolute top-2 right-2 text-xs text-slate-500">SYSTEM.LOG</div>
+                    <div className="flex flex-col-reverse">
+                        {stepCount > 0 && (
+                            <>
+                                <div className="opacity-100">&gt; Evaluando estado... {currentValue ? "VERDADERO" : "FALSO"}</div>
+                                <div className="opacity-70">&gt; Aplicando regla: negación...</div>
+                                <div className="opacity-40">&gt; Ciclo #{stepCount} iniciado</div>
+                            </>
+                        )}
+                        {stepCount === 0 && <span className="text-slate-500">Esperando ejecución...</span>}
+                    </div>
+                </div>
+
+                {/* Controls */}
+                <div className="flex gap-4">
+                    <button
+                        onClick={handleToggle}
+                        className={`
+                            px-6 py-3 rounded-lg font-bold flex items-center gap-2 transition-all
+                            ${isRunning
+                                ? 'bg-red-500/20 text-red-500 border border-red-500 hover:bg-red-500/30'
+                                : 'bg-green-500/20 text-green-500 border border-green-500 hover:bg-green-500/30'
+                            }
+                        `}
+                    >
+                        {isRunning ? <><Pause size={20} /> DETENER</> : <><Play size={20} /> INICIAR SIMULACIÓN</>}
+                    </button>
+
+                    <button
+                        onClick={handleReset}
+                        className="px-4 py-3 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 transition-colors border border-slate-700"
+                    >
+                        <RefreshCw size={20} />
+                    </button>
+                </div>
+
+                {/* Warning */}
+                {stepCount > 5 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-2 text-yellow-500 bg-yellow-500/10 px-4 py-2 rounded border border-yellow-500/20"
+                    >
+                        <AlertTriangle size={16} />
+                        <span className="text-sm font-bold">¡ALERTA! Bucle infinito detectado. El sistema no puede decidir.</span>
+                    </motion.div>
+                )}
+            </div>
+        </div>
+    );
+};
