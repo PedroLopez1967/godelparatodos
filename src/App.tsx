@@ -16,23 +16,27 @@ const ScenarioPlaceholder = ({ name }: { name: string }) => (
   </div>
 );
 
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
+
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<ControlPanel />} />
-          <Route path="scenarios">
-            <Route index element={<Navigate to="/" replace />} />
-            <Route path="detective" element={<ScenarioDetective />} />
-            <Route path="factory" element={<ScenarioFactory />} />
-            <Route path="paradox" element={<ScenarioParadox />} />
-            <Route path="coding" element={<ScenarioCoding />} />
-            <Route path="kingdom" element={<ScenarioPlaceholder name="El Reino Incompleto" />} />
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<ControlPanel />} />
+            <Route path="scenarios">
+              <Route index element={<Navigate to="/" replace />} />
+              <Route path="detective" element={<ScenarioDetective />} />
+              <Route path="factory" element={<ScenarioFactory />} />
+              <Route path="paradox" element={<ScenarioParadox />} />
+              <Route path="coding" element={<ScenarioCoding />} />
+              <Route path="kingdom" element={<ScenarioPlaceholder name="El Reino Incompleto" />} />
+            </Route>
+            <Route path="progress" element={<ScenarioPlaceholder name="Tu Progreso" />} />
           </Route>
-          <Route path="progress" element={<ScenarioPlaceholder name="Tu Progreso" />} />
-        </Route>
-      </Routes>
+        </Routes>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }
