@@ -41,17 +41,12 @@ export const ParadoxEngine: React.FC = () => {
 
         if (isRunning) {
             intervalId = setInterval(() => {
-                setNodes(prevNodes => {
-                    const nodeMap = new Map(prevNodes.map(n => [n.id, n.value]));
-                    const newValue = rule.evaluate(nodeMap);
-
-                    // Create a NEW array reference but keep IDs stable
-                    return prevNodes.map(n =>
-                        n.id === rule.targetId ? { ...n, value: newValue } : n
-                    );
-                });
+                setNodes(prev => [{
+                    ...prev[0],
+                    value: !prev[0].value
+                }]);
                 setStepCount(c => c + 1);
-            }, 800);
+            }, 1000); // Slower interval for stability
         }
 
         return () => {
