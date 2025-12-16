@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Calculator, ArrowRight, ArrowDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calculator, ArrowDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Mapping table strictly based on Nagel & Newman (or simplified version)
